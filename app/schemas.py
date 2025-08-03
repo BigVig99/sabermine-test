@@ -18,8 +18,12 @@ class TaskCreate(BaseModel):
     due_date: datetime
 
 
-class TaskUpdate(TaskCreate):
-    completed: bool
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[PriorityEnum] = None
+    due_date: Optional[datetime] = None
+    completed: Optional[bool] = None
 
 
 class TaskRead(TaskCreate):
@@ -36,3 +40,4 @@ class PaginatedTasks(BaseModel):
     tasks: List[TaskRead]
 
     model_config = ConfigDict(from_attributes=True)
+

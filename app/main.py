@@ -1,12 +1,12 @@
 from typing import Optional, List
 from urllib.parse import urlencode
 
-from fastapi import FastAPI, Depends, Query, Request, HTTPException
+from fastapi import FastAPI, Depends, Query, Request, HTTPException, Body
 from sqlalchemy.orm import Session
 
 from app.models import Task
 from app.database import SessionLocal
-from app.schemas import TaskRead, TaskCreate, PriorityEnum, PaginatedTasks
+from app.schemas import TaskRead, TaskCreate, PriorityEnum, PaginatedTasks, TaskUpdate
 from app.utils.constants import TASKS_PAGE_SIZE
 
 app = FastAPI()
@@ -87,14 +87,24 @@ def get_task(
 ):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="Task not found.")
     return task
 
 
-@app.put("/tasks/{task_id}/")
-def update_task(task_id: int):
-    pass
-
+@app.put("/tasks/{task_id}/", response_model=TaskRead)
+def update_task(
+        task_id: int,
+        task_update: TaskUpdate = Body(...),
+        db: Session = Depends(get_db),
+):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found.")
+    for key, value in task_update.model_dump(exclude_unset=True).items():
+        setattr(task, key, value)
+    db.commit()
+    db.refresh(task)
+    return task
 
 @app.delete("/tasks/{task_id}/")
 def delete_task(
@@ -103,7 +113,7 @@ def delete_task(
 ):
     task_to_delete = db.query(Task).filter(Task.id == task_id).first()
     if not task_to_delete:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="Task not found.")
     db.delete(task_to_delete)
     db.commit()
     return {"message": "Task deleted successfully."}
