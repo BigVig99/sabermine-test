@@ -37,7 +37,7 @@ class PaginatedTasks(BaseModel):
     total: int
     next_url: Optional[str] = None
     prev_url: Optional[str] = None
-    tasks: List[TaskRead]
+    items: List[TaskRead]
 
     model_config = ConfigDict(from_attributes=True)
 
