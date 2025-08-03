@@ -1,0 +1,1 @@
+TASKS_PAGE_SIZE = 5
