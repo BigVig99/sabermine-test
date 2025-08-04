@@ -18,6 +18,18 @@ tasks_router = APIRouter(tags=["Tasks"])
     response_model=TaskRead,
 )
 def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
+    """
+           Allows for the creation of a task.
+
+           Payload must contain the following fields:
+           - title: string.
+           - description: string.
+           - priority: Integer (1-3).
+           - due_date: datetime string.
+
+           Returns:
+           - A Task object of form {id, title, description, priority, due_date, completed}.
+    """
     task = Task(**task_payload.model_dump())
     db.add(task)
     db.commit()
@@ -25,21 +37,19 @@ def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
     return task
 
 
-
-
 @tasks_router.get(
     path="/",
     response_model=PaginatedTasks,
 )
 def get_tasks(
-    request: Request,
-    db: Session = Depends(get_db),
-    completed: Optional[bool] = Query(None),
-    priority: Optional[PriorityEnum] = Query(None),
-    search_string: Optional[str] = Query(
-        None
-    ),
-    page: int = Query(1, ge=1, description="Page number"),
+        request: Request,
+        db: Session = Depends(get_db),
+        completed: Optional[bool] = Query(None),
+        priority: Optional[PriorityEnum] = Query(None),
+        search_string: Optional[str] = Query(
+            None
+        ),
+        page: int = Query(1, ge=1, description="Page number"),
 ):
     """
        Returns tasks (paginated) with respect to filtering and searching (can be done simultaneously).
