@@ -5,8 +5,8 @@ from fastapi import Depends, Query, Request, APIRouter
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Task
-from app.schemas import TaskRead, TaskCreate, PriorityEnum, PaginatedTasks
+from app.models.task import Task
+from app.schemas.task import TaskRead, TaskCreate, PriorityEnum, PaginatedTasks
 from app.utils.constants import TASKS_PAGE_SIZE
 from sqlalchemy import or_
 tasks_router = APIRouter(tags=["Tasks"])

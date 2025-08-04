@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from app.models import Task
+from app.models.task import Task
 from sqlalchemy.orm import Session
 
 
