@@ -8,14 +8,12 @@ from app.database import get_db
 from app.models import Task
 from app.schemas import TaskRead, TaskCreate, PriorityEnum, PaginatedTasks
 from app.utils.constants import TASKS_PAGE_SIZE
-
-tasks_router = APIRouter(prefix="/tasks", tags=["Tasks"])
-
+from sqlalchemy import or_
+tasks_router = APIRouter(tags=["Tasks"])
 
 @tasks_router.post(
     path='/',
     response_model=TaskRead,
-    tags=["Create a task"]
 )
 def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
     task = Task(**task_payload.model_dump())
@@ -31,13 +29,13 @@ def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
 @tasks_router.get(
     path='/',
     response_model=PaginatedTasks,
-    tags=["Get all tasks"]
 )
 def get_tasks(
         request: Request,
         db: Session = Depends(get_db),
         completed: Optional[bool] = Query(None, description="Filter by completed"),
         priority: Optional[PriorityEnum] = Query(None, description="Filter by priority"),
+        search_string: Optional[str] = Query(None, description= "Filter by search string (prefix)"),
         page: int = Query(1, ge=1, description="Page number"),
 ):
     def build_paginated_url(page_number: int):
@@ -56,6 +54,14 @@ def get_tasks(
 
     if priority is not None:
         query = query.filter(Task.priority == priority.value)
+
+    if search_string is not None:
+        query = query.filter(
+            or_(
+                Task.title.ilike(f"%{search_string}%"),
+                Task.description.ilike(f"%{search_string}%"),
+            )
+        )
 
     count = query.count()
 

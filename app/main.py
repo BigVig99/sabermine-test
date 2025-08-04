@@ -5,5 +5,5 @@ from app.routers.task_routers.tasks import tasks_router
 
 app = FastAPI()
 
-app.include_router(router=task_router)
-app.include_router(router=tasks_router)
+app.include_router(router=task_router,prefix="/tasks")
+app.include_router(router=tasks_router, prefix="/tasks")

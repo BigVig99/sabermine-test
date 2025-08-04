@@ -13,7 +13,7 @@ class PriorityEnum(int, Enum):
 
 class TaskCreate(BaseModel):
     title: str
-    description: Optional[str] = None
+    description: str
     priority: PriorityEnum
     due_date: datetime
 
@@ -29,7 +29,10 @@ class TaskUpdate(BaseModel):
 class TaskRead(TaskCreate):
     id: int
     completed: bool
-
+    title: str
+    description: str
+    priority: PriorityEnum
+    due_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 

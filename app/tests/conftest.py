@@ -6,11 +6,11 @@ from sqlalchemy.orm import sessionmaker
 from alembic.config import Config
 from fastapi.testclient import TestClient
 
-from factories.task_factory import create_task
+from .factories.task_factory import create_task
 from app.main import app
 from app.database import get_db
 
-TEST_DATABASE_URL = "sqlite:///./test.db"
+TEST_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
     TEST_DATABASE_URL,

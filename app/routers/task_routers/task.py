@@ -5,13 +5,12 @@ from app.database import get_db
 from app.models import Task
 from app.schemas import TaskRead, TaskUpdate
 
-task_router = APIRouter(prefix="/tasks", tags=["Task Details"])
+task_router = APIRouter(tags=["Task Details"])
 
 
 @task_router.get(
-    "/tasks/{task_id}/",
+    "/{task_id}/",
     response_model=TaskRead,
-    tags=["Get individual task"],
 )
 def get_task(
         task_id: int,
@@ -24,9 +23,8 @@ def get_task(
 
 
 @task_router.put(
-    "/tasks/{task_id}/",
+    "/{task_id}/",
     response_model=TaskRead,
-    tags=["Update individual task"],
 )
 def update_task(
         task_id: int,
@@ -34,6 +32,7 @@ def update_task(
         db: Session = Depends(get_db),
 ):
     task = db.query(Task).filter(Task.id == task_id).first()
+
     if not task:
         raise HTTPException(status_code=404, detail="Task not found.")
     for key, value in task_update.model_dump(exclude_unset=True).items():
@@ -44,8 +43,7 @@ def update_task(
 
 
 @task_router.delete(
-    "/tasks/{task_id}/",
-    tags=["Delete individual task"],
+    "/{task_id}/",
 )
 def delete_task(
         task_id: int,
