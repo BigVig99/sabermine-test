@@ -2,13 +2,13 @@ from typing import Optional
 from urllib.parse import urlencode
 
 from fastapi import Depends, Query, Request, APIRouter
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.task import Task
 from app.schemas.task import TaskRead, TaskCreate, PriorityEnum, PaginatedTasks
 from app.utils.constants import TASKS_PAGE_SIZE
-from sqlalchemy import or_
 
 tasks_router = APIRouter(tags=["Tasks"])
 
@@ -27,6 +27,8 @@ def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
 
 # Returns data in the form {total, next_url, prev_url, items}
 # for easy page management client side
+# Query params allow for filtering of completed tasks, tasks by priority and also
+# searching for task titles or descriptions by string
 @tasks_router.get(
     path="/",
     response_model=PaginatedTasks,
@@ -68,19 +70,23 @@ def get_tasks(
 
     count = query.count()
 
-    offset = (page - 1) * TASKS_PAGE_SIZE
-    limit = TASKS_PAGE_SIZE
+    next_url = None
+    prev_url = None
+    tasks = []
 
-    num_full_pages = count // TASKS_PAGE_SIZE
-    partial_page = False if num_full_pages * TASKS_PAGE_SIZE == count else True
+    if count != 0:
+        offset = (page - 1) * TASKS_PAGE_SIZE
+        limit = TASKS_PAGE_SIZE
 
-    tasks = query.offset(offset).limit(limit).all()
-    next_url = (
-        None
-        if page == num_full_pages and not partial_page
-        else build_paginated_url(page + 1)
-    )
-    prev_url = None if page == 1 else build_paginated_url(page - 1)
+        num_full_pages, partial_page_size = divmod(count, TASKS_PAGE_SIZE)
+
+        tasks = query.offset(offset).limit(limit).all()
+        next_url = (
+            None
+            if page == num_full_pages and partial_page_size == 0 or page == num_full_pages + 1
+            else build_paginated_url(page + 1)
+        )
+        prev_url = None if page == 1 else build_paginated_url(page - 1)
 
     return PaginatedTasks(
         total=count, next_url=next_url, prev_url=prev_url, items=tasks
