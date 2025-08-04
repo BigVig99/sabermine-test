@@ -25,10 +25,8 @@ def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
     return task
 
 
-# Returns data in the form {total, next_url, prev_url, items}
-# for easy page management client side
-# Query params allow for filtering of completed tasks, tasks by priority and also
-# searching for task titles or descriptions by string
+
+
 @tasks_router.get(
     path="/",
     response_model=PaginatedTasks,
@@ -36,13 +34,26 @@ def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
 def get_tasks(
     request: Request,
     db: Session = Depends(get_db),
-    completed: Optional[bool] = Query(None, description="Filter by completed"),
-    priority: Optional[PriorityEnum] = Query(None, description="Filter by priority"),
+    completed: Optional[bool] = Query(None),
+    priority: Optional[PriorityEnum] = Query(None),
     search_string: Optional[str] = Query(
-        None, description="Filter by search string (prefix)"
+        None
     ),
     page: int = Query(1, ge=1, description="Page number"),
 ):
+    """
+       Returns tasks (paginated) with respect to filtering and searching (can be done simultaneously).
+
+       Parameters:
+       - completed: Filter by task completion status.
+       - priority: Filter by task priority level (1, 2, or 3).
+       - search_string: String to search in title/description (substring match).
+       - page: Page number (1-indexed).
+
+       Returns:
+       - A PaginatedTasks object of form {total, next_url, prev_url, items}.
+       """
+
     def build_paginated_url(page_number: int):
         query_params = {
             "page": page_number,
