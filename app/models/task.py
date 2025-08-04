@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from app.database import Base
 import datetime
 
+
 class Task(Base):
     __tablename__ = "tasks"
 

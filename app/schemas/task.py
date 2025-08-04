@@ -43,4 +43,3 @@ class PaginatedTasks(BaseModel):
     items: List[TaskRead]
 
     model_config = ConfigDict(from_attributes=True)
-

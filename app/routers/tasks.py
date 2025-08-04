@@ -9,10 +9,12 @@ from app.models.task import Task
 from app.schemas.task import TaskRead, TaskCreate, PriorityEnum, PaginatedTasks
 from app.utils.constants import TASKS_PAGE_SIZE
 from sqlalchemy import or_
+
 tasks_router = APIRouter(tags=["Tasks"])
 
+
 @tasks_router.post(
-    path='/',
+    path="/",
     response_model=TaskRead,
 )
 def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
@@ -23,20 +25,21 @@ def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
     return task
 
 
-
-#Returns data in the form {total, next_url, prev_url, items}
-#for easy page management client side
+# Returns data in the form {total, next_url, prev_url, items}
+# for easy page management client side
 @tasks_router.get(
-    path='/',
+    path="/",
     response_model=PaginatedTasks,
 )
 def get_tasks(
-        request: Request,
-        db: Session = Depends(get_db),
-        completed: Optional[bool] = Query(None, description="Filter by completed"),
-        priority: Optional[PriorityEnum] = Query(None, description="Filter by priority"),
-        search_string: Optional[str] = Query(None, description= "Filter by search string (prefix)"),
-        page: int = Query(1, ge=1, description="Page number"),
+    request: Request,
+    db: Session = Depends(get_db),
+    completed: Optional[bool] = Query(None, description="Filter by completed"),
+    priority: Optional[PriorityEnum] = Query(None, description="Filter by priority"),
+    search_string: Optional[str] = Query(
+        None, description="Filter by search string (prefix)"
+    ),
+    page: int = Query(1, ge=1, description="Page number"),
 ):
     def build_paginated_url(page_number: int):
         query_params = {
@@ -72,12 +75,13 @@ def get_tasks(
     partial_page = False if num_full_pages * TASKS_PAGE_SIZE == count else True
 
     tasks = query.offset(offset).limit(limit).all()
-    next_url = None if page == num_full_pages and not partial_page else build_paginated_url(page + 1)
+    next_url = (
+        None
+        if page == num_full_pages and not partial_page
+        else build_paginated_url(page + 1)
+    )
     prev_url = None if page == 1 else build_paginated_url(page - 1)
 
     return PaginatedTasks(
-        total=count,
-        next_url=next_url,
-        prev_url=prev_url,
-        items=tasks
+        total=count, next_url=next_url, prev_url=prev_url, items=tasks
     )

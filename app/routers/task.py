@@ -12,10 +12,7 @@ task_router = APIRouter(tags=["Task Details"])
     "/{task_id}/",
     response_model=TaskRead,
 )
-def get_task(
-        task_id: int,
-        db: Session = Depends(get_db)
-):
+def get_task(task_id: int, db: Session = Depends(get_db)):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found.")
@@ -27,9 +24,9 @@ def get_task(
     response_model=TaskRead,
 )
 def update_task(
-        task_id: int,
-        task_update: TaskUpdate = Body(...),
-        db: Session = Depends(get_db),
+    task_id: int,
+    task_update: TaskUpdate = Body(...),
+    db: Session = Depends(get_db),
 ):
     task = db.query(Task).filter(Task.id == task_id).first()
 
@@ -45,10 +42,7 @@ def update_task(
 @task_router.delete(
     "/{task_id}/",
 )
-def delete_task(
-        task_id: int,
-        db: Session = Depends(get_db)
-):
+def delete_task(task_id: int, db: Session = Depends(get_db)):
     task_to_delete = db.query(Task).filter(Task.id == task_id).first()
     if not task_to_delete:
         raise HTTPException(status_code=404, detail="Task not found.")
