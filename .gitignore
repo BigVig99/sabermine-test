@@ -1,28 +1,19 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment
 .venv/
-env/
-venv/
 
-# VS Code settings
 .vscode/
 
-# JetBrains IDEs (e.g., PyCharm)
 .idea/
 
-# Distribution / packaging
 build/
 dist/
 *.egg-info/
 
-# PyInstaller
 *.spec
 
-# Unit test / coverage reports
 htmlcov/
 .tox/
 .nox/
@@ -33,31 +24,23 @@ pytest_cache/
 nosetests.xml
 coverage.xml
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
 
-# MyPy and Pylint
 .mypy_cache/
 .dmypy.json
 .pyre/
 .pytype/
 
-# dotenv
 .env
 .env.*
 
-# Docker
 *.log
 docker-compose.override.yml
 
-# Alembic
 alembic.ini
 
-# System-specific
 .DS_Store
 Thumbs.db
 
-# Logs
 *.log
 logs/
 

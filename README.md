@@ -15,7 +15,6 @@ python -m venv .venv
 and activate it using 
 ```
 source .venv/bin/activate
-
 ```
 
 Once complete install all dependencies using 
