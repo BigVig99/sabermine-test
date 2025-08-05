@@ -19,16 +19,16 @@ tasks_router = APIRouter(tags=["Tasks"])
 )
 def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
     """
-           Allows for the creation of a task.
+    Allows for the creation of a task.
 
-           Payload must contain the following fields:
-           - title: string.
-           - description: string.
-           - priority: Integer (1-3).
-           - due_date: datetime string.
+    Payload must contain the following fields:
+    - title: string.
+    - description: string.
+    - priority: Integer (1-3).
+    - due_date: datetime string.
 
-           Returns:
-           - A Task object of form {id, title, description, priority, due_date, completed}.
+    Returns:
+    - A Task object of form {id, title, description, priority, due_date, completed}.
     """
     task = Task(**task_payload.model_dump())
     db.add(task)
@@ -42,27 +42,25 @@ def create_task(task_payload: TaskCreate, db: Session = Depends(get_db)):
     response_model=PaginatedTasks,
 )
 def get_tasks(
-        request: Request,
-        db: Session = Depends(get_db),
-        completed: Optional[bool] = Query(None),
-        priority: Optional[PriorityEnum] = Query(None),
-        search_string: Optional[str] = Query(
-            None
-        ),
-        page: int = Query(1, ge=1, description="Page number"),
+    request: Request,
+    db: Session = Depends(get_db),
+    completed: Optional[bool] = Query(None),
+    priority: Optional[PriorityEnum] = Query(None),
+    search_string: Optional[str] = Query(None),
+    page: int = Query(1, ge=1, description="Page number"),
 ):
     """
-       Returns tasks (paginated) with respect to filtering and searching (can be done simultaneously).
+    Returns tasks (paginated) with respect to filtering and searching (can be done simultaneously).
 
-       Parameters:
-       - completed: Filter by task completion status.
-       - priority: Filter by task priority level (1, 2, or 3).
-       - search_string: String to search in title/description (substring match).
-       - page: Page number (1-indexed).
+    Parameters:
+    - completed: Filter by task completion status.
+    - priority: Filter by task priority level (1, 2, or 3).
+    - search_string: String to search in title/description (substring match).
+    - page: Page number (1-indexed).
 
-       Returns:
-       - A PaginatedTasks object of form {total, next_url, prev_url, items}.
-       """
+    Returns:
+    - A PaginatedTasks object of form {total, next_url, prev_url, items}.
+    """
 
     def build_paginated_url(page_number: int):
         query_params = {
@@ -104,7 +102,9 @@ def get_tasks(
         tasks = query.offset(offset).limit(limit).all()
         next_url = (
             None
-            if page == num_full_pages and partial_page_size == 0 or page == num_full_pages + 1
+            if page == num_full_pages
+            and partial_page_size == 0
+            or page == num_full_pages + 1
             else build_paginated_url(page + 1)
         )
         prev_url = None if page == 1 else build_paginated_url(page - 1)
