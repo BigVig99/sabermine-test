@@ -1,39 +1,34 @@
 
 # Tasks API
-
-FastAPI RESTful API for the Sabermine backend test
-
 # Setup
 
 ## Environment
 
 First, create a new virtual envionment in the root directory (sabermine-test/) with 
 
-```
+```bash
 python -m venv .venv 
 ``` 
 and activate it using 
-```
+```bash
 source .venv/bin/activate
-
 ```
 
-Once complete install all dependencies using 
+Once complete install all dependencies 
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
 ## Database Setup 
-Since we're using a local database for the time being, set this database up by running 
+To create the SQLite database and apply migrations run
 ```
 alembic upgrade head
 ```
-which applies migrations and creates the relevant tables
 
-
+# Running 
 ## (Option 1) Run using uvicorn 
-To test this locally without docker, simply run 
+To run this locally without docker, simply run 
 ```
 uvicorn app.main:app --reload
 ```
@@ -45,14 +40,16 @@ To run this using docker, we must first build the docker image with
 docker build -t task-api .
 ```
 
-and then create the corresponding container using 
+and then run the corresponding container using 
 
 ```
 docker run -p 8000:8000 --name task-api task-api
 ```
 
+Both of these result in the API being accessible at http://localhost:8000/
+
 # Using the API
-The following instructions detail API use. We assume that you've run the above setep, and with whichever choice you've made are now running  the API on http://localhost:8000/. Note that you can access the docs using http://localhost:8000/docs which provide information on how to use all the endpoints
+The following instructions detail API use. We assume that you've run the above setup, and with whichever choice you've made are now running  the API on http://localhost:8000/. Note that you can access the docs using http://localhost:8000/docs which provide information on how to use all of the endpoints
 
 ## Example 1: Creating a task
 A task can be created by running 
@@ -68,8 +65,8 @@ curl -X 'POST' \
            "due_date": "2000-01-30T15:00:00"
        }'
 ```
-Where **all** fields are compulsory. Failure to provide any field will return 422.   
-Furthrmore, the individual fields must be of the following types  
+Where **all** fields are compulsory. Failure to provide any field will return a **422** response.   
+Furthermore, the individual fields must be of the following types  
 ```bash
 {
   "title": string,
@@ -79,9 +76,9 @@ Furthrmore, the individual fields must be of the following types
 }
 ```
 
-and failure to do so will also return a 422 response. 
+and failure to do so will also return a **422** response. 
 
-If successful, the endpoint will return 200 response, alongside a JSON representation of the task you just created. In this case: 
+If successful, the endpoint will return **200** response, with a JSON representation of the task you just created. In this case: 
 
 ```bash 
 {
@@ -98,13 +95,13 @@ If successful, the endpoint will return 200 response, alongside a JSON represent
 ## Example 2: Getting all tasks
 ### Pagination
 All tasks can be retrieved and filtered using this endpoint.   
-In the case where you want to retrieve all of the tasks without filtering, you must start by calling with page number 1
+In the case where you want to retrieve all of the tasks without filtering, you start by calling with page number 1
 ```bash
 curl -X 'GET' \
   'http://localhost:8000/tasks/?page=1' \
   -H 'accept: application/json'
 ```
-which (if tasks exist) will return a 200 response with a body of form
+which will return a **200** response with a body of form
 ```bash 
 {
   "total": 13,
@@ -224,7 +221,7 @@ curl -X 'GET' \
   'http://localhost:8000/tasks/?priority=1&page=1' \
   -H 'accept: application/json'
 ```
-returning a 200 response with body
+returning a **200** response with body
 
 ```bash
 {
@@ -337,23 +334,23 @@ which in this case returns
 }
 ```
 ### Other 
-The use of a non boolean completed flag,  non integer page number or priority, or an integer prioirty outside of {1,2,3} will all result in a 422 response detailing the issue
+The use of a non boolean completed flag,  non integer page number or priority, or an integer prioirty outside of {1,2,3} will all result in a **422** response with a body detailing the issue
 ## Example 3: Retrieve a specific task by ID 
 
-Given a task ID <id> (as returned in Example 1 or 2), you can retrieve the specific task by running 
+Given a task ID <id>, you can retrieve the specific task by running 
 
 ```bash
 curl -X 'GET' \
   'http://localhost:8000/tasks/<id>/' \
   -H 'accept: application/json'
 ```
-In the case you enter an invalid ID (of a task that hasn't been created, or one that's been deleted), the endpoint will return a 404 response with body
+In the case you enter an invalid ID (of a task that hasn't been created, or one that's been deleted), the endpoint will return a **404** response with body
 ```bash
 {"detail":"Task not found."}
 ```
-Should you enter an ID that is invalid because it cannot be parsed to an integer, say 's', you will recieve a 422 response.
+Should you enter an ID that is invalid because it cannot be parsed to an integer, say 's', you will recieve a **422** response.
 
-Otherwise, you will recieve a 200 response with the task details 
+Otherwise, you will recieve a **200** response with the task details 
 
 ```bash
 {
@@ -392,13 +389,13 @@ The payload itself takes the form
 }
 ```
 where **all** fields are optional. 
-As usual, calling with the id of a non-existent/deleted task will result in a 404 response with body 
+As usual, calling with the id of a non-existent/deleted task will result in a **404** response with body 
 ```bash
 {
   "detail": "Task not found."
 }
 ```
-and using a malformed/ non integer ID will give a 422. 
+and using a malformed/ non integer ID will give a **422**. 
 
 A successful call will return a 200 response with body 
 
@@ -421,14 +418,14 @@ curl -X 'DELETE' \
   'http://localhost:8000/tasks/<id>/' \
   -H 'accept: application/json'
 ```
-If an integer ID corresponding to a non (or no longer) existing task is entered you will recieve a 404 response with body 
+If an integer ID corresponding to a non (or no longer) existing task is entered you will recieve a **404** response with body 
 ```
 {
   "detail": "Task not found."
 }
 ``` 
-If a non integer ID is entered, you'll recieve a 422 as with the other endpoints  
-A successful deletion will return a 200 response with body 
+If a non integer ID is entered, you'll recieve a **422** as with the other endpoints  
+A successful deletion will return a **200** response with body 
 
 ```bash 
 {
@@ -446,5 +443,15 @@ in root
 
 
 # Notes 
-The repo is configured to run black to ensure PEP8 styling, and pytest to ensure the tests pass, failure to verify each of these will cause the pipeline to fail
+The repo is configured to run black to ensure PEP8 styling, and pytest to ensure the tests pass, where failure to verify each of these will cause the pipeline to fail. To check these locally, you can run 
+
+```bash
+black . 
+```
+To reformat code to conform to proper styling 
+and 
+```bash
+pytest
+```
+to ensure all tests pass.
 
